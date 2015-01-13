@@ -42,6 +42,7 @@ COUNTRIES_RENAMED = {
     "Hong Kong SAR, China": "China, Hong Kong SAR",
 }
 
+
 def create_db():
     """Make database for educational life span"""
     conn = lite.connect('world_ed.db')
@@ -52,6 +53,7 @@ def create_db():
                  'women INTEGER, gdp NUMERIC)')
     conn.commit()
     conn.close()
+
 
 def scrape_data():
     """Scrape web page for educational life span of many countries"""
@@ -70,6 +72,7 @@ def scrape_data():
             result.append(data)
     return result
 
+
 def populate_db(scraped_data):
     """Fill database with values"""
     conn = lite.connect('world_ed.db')
@@ -79,6 +82,7 @@ def populate_db(scraped_data):
     with conn:
         for tup in scraped_data:
             curs.execute(ins_sql, tup)
+
 
 def add_gdp(csvfile='ny.gdp.mktp.cd_Indicator_en_csv_v2.csv'):
     """Add gdp data to database"""
@@ -102,7 +106,8 @@ def add_gdp(csvfile='ny.gdp.mktp.cd_Indicator_en_csv_v2.csv'):
             if country in COUNTRIES_RENAMED:
                 country = COUNTRIES_RENAMED[country]
             with conn:
-                curs.execute('select * from ed_life where country = "' + country + '"')
+                curs.execute('select * from ed_life where '
+                             'country = "' + country + '"')
                 try:
                     year = curs.fetchone()[2]
                 except TypeError:
@@ -114,6 +119,7 @@ def add_gdp(csvfile='ny.gdp.mktp.cd_Indicator_en_csv_v2.csv'):
                     continue
                 curs.execute('update ed_life set gdp = "' + gdp +
                              '" where country = "' + country + '"')
+
 
 def profile_data():
     """Provide basic summary stats of education data"""
@@ -137,6 +143,7 @@ def profile_data():
            .format(dframe['men'].mean()))
     print ("Avg. School Life Expectancy for Women:\t{:.4}"
            .format(dframe['women'].mean()))
+
 
 def analyze_gdp():
     """See if there is a correlation between GDP and educational life span"""
@@ -165,7 +172,8 @@ def analyze_gdp():
     ax3.set_xlabel('log(GDP)')
     ax3.set_ylabel('Educ. Life Expectancy')
     fig2.savefig('gdp_scatter.png')
-    print "See scatterplot of log gdp vs. educ. life expectancy in 'gdp_scatter.png'"
+    print ("See scatterplot of log gdp vs. educ. life expectancy "
+           "in 'gdp_scatter.png'")
     corr_table = dframe[['log_gdp', 'total']].corr()
     print ("\nCorrelation between log(GDP) and Educ. Life Expectancy: "
            "{:.3}").format(corr_table['log_gdp'][1])
@@ -174,6 +182,7 @@ def analyze_gdp():
     resp = model.fit()
     print "\nSummary of Regression Model:"
     print resp.summary()
+
 
 def main():
     """Main Function"""
